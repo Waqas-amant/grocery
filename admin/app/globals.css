@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #028290;
+  --color-secondary: #353535;
+}
+body {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+::-webkit-scrollbar-thumb {
+  background: #02b290;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+
+.container {
+  width: 96%;
+  margin: auto;
+}
+.ReactCollapse--collapse {
+  transition: height 300ms;
+}
+
+.btn-border-g {
+  border: 1px solid #02b290 !important ;
+  font-weight: 600 !important;
+  color: #02b290 !important;
+}
+.btn-border-g:hover {
+  background: #02b290 !important;
+  color: #fff !important;
+  border-color: #02b290 !important;
+}
+.btn-g {
+  border: 1px solid #02b290 !important ;
+  font-weight: 600 !important;
+  color: #fff !important;
+  background: #02b290 !important;
+  padding: 8px 15px !important;
+}
+.btn-g:hover {
+  background: #353535 !important;
+  color: #fff !important;
+}
+
+.MuiTableHead-root th {
+  background: #f1f1f1 !important;
+  font-weight: 600 !important;
+  padding: 16px !important;
+}
+
+.MuiTableHead-root th {
+  @apply text-gray-700!;
+}
+.MuiTableCell-root {
+  padding: 10px 16px !important;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.MuiCircularProcess-root {
+  width: 30px !important;
+  height: 30px !important;
+}
+.MuiCircularProcess svg {
+  color: #fff !important;
+}
+.uploadBox .MuiCircularProcess-root svg {
+  color: #02b290 !important;
+}

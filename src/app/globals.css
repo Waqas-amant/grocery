@@ -1,26 +1,207 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import "swiper/css";
+@import "swiper/css/navigation";
+@theme {
+  --color-primary: #028290;
+  --color-secondary: #353535;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+::-webkit-scrollbar-thumb {
+  background: #02b290;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+.container {
+  width: 96%;
+  margin: auto;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.swiper-button-next,
+.swiper-button-prev {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px !important;
+  height: 50px !important;
+  background: #fff !important;
+  border-radius: 100% !important;
+}
+
+.swiper-button-next svg,
+.swiper-button-prev svg {
+  color: #000 !important;
+  width: 15px !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: var(--color-emerald-600); /* replace if not using Tailwind */
+}
+
+.swiper-button-next:hover svg,
+.swiper-button-prev:hover svg {
+  color: #fff !important;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  color: black !important;
+}
+/* Tabs button font weight */
+.MuiTabs-list button {
+  font-weight: 600 !important;
+}
+
+/* Selected tab text color */
+.MuiTabs-list .Mui-selected {
+  color: #2b2b90 !important; /* you can change color */
+}
+
+/* Tabs indicator (underline) */
+.MuiTabs-indicator {
+  background-color: #02b290 !important;
+  height: 3px; /* optional thickness */
+}
+
+/* Scroll buttons (left/right arrows) */
+.MuiTabScrollButton-root svg {
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+.btn-border-g {
+  border: 1px solid #02b290 !important ;
+  font-weight: 600 !important;
+  color: #02b290 !important;
+}
+.btn-border-g:hover {
+  background: #02b290 !important;
+  color: #fff !important;
+  border-color: #02b290 !important;
+}
+.btn-g {
+  border: 1px solid #02b290 !important ;
+  font-weight: 600 !important;
+  color: #fff !important;
+  background: #02b290 !important;
+  padding: 8px 15px !important;
+}
+.btn-g:hover {
+  background: #353535 !important;
+  color: #fff !important;
+}
+
+hr {
+  border-top: 1px solid #eee !important;
+}
+.scroll::-webkit-scrollbar-thumb {
+  background: #ccc !important;
+}
+
+/* Typography fix */
+.MuiFormGroup-root .MuiTypography-root {
+  font-size: 14px !important;
+}
+
+/* ✅ Correct Checkbox color */
+.MuiCheckbox-root.Mui-checked {
+  color: #02b290 !important;
+}
+.Mui-checked {
+  color: #02b290 !important;
+}
+.MuiFormGroup-root .MuiFormControlLabel .MuiCheckbox-root {
+  padding: 5px !important;
+  padding-left: 10px !important ;
+}
+.MuiCheckbox-root {
+  padding: 5px !important;
+  padding-left: 10px !important ;
+}
+
+.ratingFilter .MuiCheckbox-root {
+  padding-left: 0px !important;
+}
+.ReactCollapse--collapse {
+  transition: height 300ms;
+}
+.range-slider {
+  height: 5px;
+}
+
+.range-slider .range-slider__thumb,
+.range-slider .range-slider__range {
+  background-color: #059669 !important;
+}
+
+.range-slider .range-slider__thumb {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.MuiList-root li {
+  font-size: 14px !important;
+}
+
+.MuiPaginationItem-root.Mui-selected {
+  background-color: #02b290 !important;
+  color: white;
+}
+/* Chrome, Edge, Safari */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
+#qtyDrop .MuiPaper-root {
+  max-height: 250px !important;
+  overflow-y: auto !important;
+}
+
+/* scrollbar */
+#qtyDrop .MuiPaper-root::-webkit-scrollbar {
+  width: 5px;
+}
+
+#qtyDrop .MuiPaper-root::-webkit-scrollbar-thumb {
+  background: #ccc !important;
+  border-radius: 5px;
+}
+
+.react-international-phone-input-container {
+  display: flex;
+}
+
+.react-international-phone-country-selector-button-dropdown {
+  z-index: 1000 !important;
+  border: 0px !important;
+  box-shadow: none !important;
+  width: 100% !important;
+}
+
+.react-international-phone-input {
+  width: 100% !important;
+}
+
+.react-international-phone-input:focus {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.MuiCircularProgress-root {
+  width: 30px !important;
+  height: 30px !important;
+}
+.MuiCircularProgress-root svg {
+  color: #fff;
 }
