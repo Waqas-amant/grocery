@@ -1,46 +1,52 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
 import "swiper/css";
-
-// import "./styles.css";
-
-// import required modules
 import { Navigation } from "swiper/modules";
 import ProductItem from "./ProductItem";
-const ProductSlider = () => {
+import { getProducts } from "@/utils/api";
+
+const ProductSlider = ({ limit = 8 }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      const res = await getProducts({ page: 1, limit });
+      if (res?.success) {
+        setProducts(res.products || []);
+      }
+      setLoading(false);
+    };
+
+    loadProducts();
+  }, [limit]);
+
+  if (loading) {
+    return <div className="py-4 text-gray-500">Loading products...</div>;
+  }
+
   return (
     <div className="productSlider">
       <Swiper
-        slidesPerView={6}
+        slidesPerView={1}
         spaceBetween={5}
         navigation={true}
         modules={[Navigation]}
         className="mySwiper"
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          768: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
+          1280: { slidesPerView: 5 },
+        }}
       >
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
-        <SwiperSlide className="py-3 px-2">
-          <ProductItem />
-        </SwiperSlide>
+        {products.map((product) => (
+          <SwiperSlide key={product._id} className="py-3 px-2">
+            <ProductItem product={product} />
+          </SwiperSlide>
+        ))}
       </Swiper>
     </div>
   );

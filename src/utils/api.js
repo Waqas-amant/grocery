@@ -1,3 +1,6 @@
+import axios from "axios";
+import Cookies from "js-cookie";
+
 const appUrl = process.env.NEXT_PUBLIC_APP_API_URL || "http://localhost:8000";
 // console.log("ENV:", process.env.NEXT_PUBLIC_APP_API_URL);
 export const postData = async (url, formData) => {
@@ -31,7 +34,6 @@ export const fetchDatafromApi = async (url) => {
   try {
     const params = {
       withCredentials: true,
-
       headers: {
         Authorization: `Bearer ${Cookies.get("accessToken")}`,
         "Content-Type": "application/json",
@@ -44,5 +46,25 @@ export const fetchDatafromApi = async (url) => {
   } catch (error) {
     console.log(error);
     return error.response?.data || error;
+  }
+};
+
+export const getProducts = async (params = {}) => {
+  try {
+    const query = new URLSearchParams(params).toString();
+    const url = `/api/product/getAllProducts${query ? `?${query}` : ""}`;
+    return await fetchDatafromApi(url);
+  } catch (error) {
+    console.log("GET PRODUCTS ERROR:", error);
+    return { success: false, products: [] };
+  }
+};
+
+export const getProductById = async (id) => {
+  try {
+    return await fetchDatafromApi(`/api/product/${id}`);
+  } catch (error) {
+    console.log("GET PRODUCT ERROR:", error);
+    return { success: false, product: null };
   }
 };

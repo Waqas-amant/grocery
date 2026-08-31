@@ -27,11 +27,11 @@ const ThemeProvider = ({ children }) => {
         name: Cookies.get("userName") || "",
         email: Cookies.get("userEmail") || "",
       });
-      if (token) {
-        router.push("/");
-      }
+      // if (token) {
+      //   router.push("/");
+      // }
     }
-  }, [isLogin, user]);
+  }, [router]);
 
   // Load cart from localStorage after mount
   useEffect(() => {

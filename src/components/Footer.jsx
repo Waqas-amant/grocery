@@ -374,7 +374,7 @@ const Footer = () => {
             </div>
             <div className="form-group w-full">
               <PhoneInput
-                defaultCountry="pak"
+                defaultCountry="pk"
                 value={phone}
                 onChange={(phone) => setPhone(phone)}
               />

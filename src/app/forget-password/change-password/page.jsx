@@ -45,12 +45,12 @@ const ChangePassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formField.newPassword === "") {
+    if (!formField.newPassword) {
       context?.alertBox("error", "Please enter new password");
       return;
     }
 
-    if (formField.confirmPassword === "") {
+    if (!formField.confirmPassword) {
       context?.alertBox("error", "Please enter confirm password");
       return;
     }
@@ -68,15 +68,17 @@ const ChangePassword = () => {
         formField,
       );
 
-      if (res?.error === false) {
-        context?.alertBox("success", res?.message);
+      if (res?.success || res?.error === false) {
+        context?.alertBox(
+          "success",
+          res?.message || "Password changed successfully",
+        );
         setTimeout(() => {
           Cookies.remove("userEmail");
-
           router.push("/login");
         }, 1000);
       } else {
-        context?.alertBox("error", res?.message);
+        context?.alertBox("error", res?.message || "Unable to change password");
       }
     } catch (error) {
       context?.alertBox("error", "Something went wrong");

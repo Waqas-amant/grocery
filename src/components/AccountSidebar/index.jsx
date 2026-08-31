@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@mui/material";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { BsBagCheck } from "react-icons/bs";
 import {
   FaCloudUploadAlt,
@@ -10,37 +10,49 @@ import {
   FaRegUser,
 } from "react-icons/fa";
 import { IoMdLogOut } from "react-icons/io";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { MyContext } from "../context/ThemeContext";
+import { usePathname, useRouter } from "next/navigation";
+import { MyContext } from "@/components/context/ThemeContext";
 import { fetchDatafromApi } from "@/utils/api";
 import Cookies from "js-cookie";
-import { useContext } from "react";
 
 const AccountSidebar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const context = useContext(MyContext);
+  const [active, setActive] = useState("profile");
+
   const handleLogout = async () => {
     try {
       const res = await fetchDatafromApi("/api/user/logout");
       if (res?.success) {
-        context.setIsLogin(false);
+        context?.setIsLogin?.(false);
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
         Cookies.remove("userEmail");
         Cookies.remove("userName");
-        context.setUser(null);
+        context?.setUser?.({ name: "", email: "" });
         router.push("/login");
       }
     } catch (error) {
       console.log(error);
     }
   };
-  const [active, setActive] = useState("profile");
+
+  const currentActive = pathname?.includes("/address")
+    ? "address"
+    : pathname?.includes("/my-list")
+      ? "my list"
+      : pathname?.includes("/my-orders")
+        ? "my order"
+        : "profile";
+
+  const profileName = context?.user?.name || "Guest User";
+  const profileEmail = context?.user?.email || "guest@example.com";
+
   return (
-    <aside className="accountSidebar  w-[100%]  bg-white shadow-md rounded-md mt-5">
-      <div className="profileSection py-5 pb-0 ">
-        <div className="profileImage w-[100px] h-[100px] rounded-full overflow-hidden m-auto  relative group">
+    <aside className="accountSidebar w-full bg-white shadow-md rounded-md mt-5">
+      <div className="profileSection py-5 pb-0">
+        <div className="profileImage w-[100px] h-[100px] rounded-full overflow-hidden m-auto relative group">
           <img
             src={"/logo1.png"}
             alt="profileImage"
@@ -55,8 +67,10 @@ const AccountSidebar = () => {
           </div>
         </div>
         <div className="text-center mt-3">
-          <h4 className="text-[18px] font-semibold text-gray-700">Waqas Ali</h4>
-          <p className="text-[14px]  text-gray-700">waqas@gmail.com</p>
+          <h4 className="text-[18px] font-semibold text-gray-700">
+            {profileName}
+          </h4>
+          <p className="text-[14px] text-gray-700">{profileEmail}</p>
         </div>
         <div className="flex flex-col gap-[2px] bg-[#f1f1f1] mt-4 py-2 myAcc">
           <Link href={"/my-account"}>
@@ -68,11 +82,10 @@ const AccountSidebar = () => {
                 textTransform: "capitalize",
                 px: 2,
                 py: 1.2,
-                color: "#4b5563",
+                color: currentActive === "profile" ? "#fff" : "#4b5563",
                 fontWeight: 600,
                 backgroundColor:
-                  active === "profile" ? "#059669" : "transparent",
-                color: active === "profile" ? "#fff" : "#4b5563",
+                  currentActive === "profile" ? "#059669" : "transparent",
               }}
             >
               <FaRegUser size={20} style={{ marginRight: "8px" }} />
@@ -88,11 +101,10 @@ const AccountSidebar = () => {
                 textTransform: "capitalize",
                 px: 2,
                 py: 1.2,
-                color: "#4b5563",
+                color: currentActive === "address" ? "#fff" : "#4b5563",
                 fontWeight: 600,
                 backgroundColor:
-                  active === "address" ? "#059669" : "transparent",
-                color: active === "address" ? "#fff" : "#4b5563",
+                  currentActive === "address" ? "#059669" : "transparent",
               }}
             >
               <FaMapPin size={20} style={{ marginRight: "8px" }} />
@@ -108,11 +120,10 @@ const AccountSidebar = () => {
                 textTransform: "capitalize",
                 px: 2,
                 py: 1.2,
-                color: "#4b5563",
+                color: currentActive === "my list" ? "#fff" : "#4b5563",
                 fontWeight: 600,
                 backgroundColor:
-                  active === "my list" ? "#059669" : "transparent",
-                color: active === "my list" ? "#fff" : "#4b5563",
+                  currentActive === "my list" ? "#059669" : "transparent",
               }}
             >
               <FaRegHeart size={20} style={{ marginRight: "8px" }} />
@@ -128,11 +139,10 @@ const AccountSidebar = () => {
                 textTransform: "capitalize",
                 px: 2,
                 py: 1.2,
-                color: "#4b5563",
+                color: currentActive === "my order" ? "#fff" : "#4b5563",
                 fontWeight: 600,
                 backgroundColor:
-                  active === "my order" ? "#059669" : "transparent",
-                color: active === "my order" ? "#fff" : "#4b5563",
+                  currentActive === "my order" ? "#059669" : "transparent",
               }}
             >
               <BsBagCheck size={20} style={{ marginRight: "8px" }} />

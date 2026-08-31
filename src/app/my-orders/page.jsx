@@ -1,26 +1,58 @@
 "use client";
 import AccountSidebar from "@/components/AccountSidebar";
-
 import OrderRow from "./TableRow";
 import { Pagination } from "@mui/material";
 import Search from "@/components/Search";
 
 const Orders = () => {
+  const orders = [
+    {
+      orderId: "#3413",
+      customer: "Dr. Arsalan Ahmad Khan",
+      email: "august45hot@gmail.com",
+      paymentId: "Pay_xzjbdbuexmcbnxcb",
+      phone: "+92 324555557",
+      addressLabel: "Home",
+      address: "H No 222 Street No 999 Mulana Shokat Ali Road Lahore Pakistan",
+      pincode: "11005",
+      total: "$540",
+      userId: "67nckbdls7398nckkdfdauwxa88jj",
+      status: "Delivered",
+      date: "25-4-2026",
+    },
+    {
+      orderId: "#3414",
+      customer: "Sana Ali",
+      email: "sana@example.com",
+      paymentId: "Pay_abc123",
+      phone: "+92 311222333",
+      addressLabel: "Office",
+      address: "Suit 5, Gulberg III, Lahore, Pakistan",
+      pincode: "54000",
+      total: "$280",
+      userId: "u12345",
+      status: "Pending",
+      date: "28-4-2026",
+    },
+  ];
+
   return (
-    <section className="bg-gray-100 py8 mt-5">
-      <div className="container flex gap-5">
-        <div className="w-[20%]">
+    <section className="bg-gray-100 py-8 mt-5">
+      <div className="container flex gap-5 flex-wrap">
+        <div className="w-full lg:w-[20%]">
           <AccountSidebar />
         </div>
-        <div className="wrapper w-[80%] mt-5">
+        <div className="wrapper w-full lg:w-[80%] mt-5">
           <div className="bg-white rounded-md shadow-md mb-5 p-5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="info">
                 <h1 className="text-[20px] font-[600] text-gray-600">Orders</h1>
                 <p>
-                  Thare are{" "}
-                  <span className="text-emerald-600! font-bold">5</span>
-                  {""} orders
+                  There are{" "}
+                  <span className="text-emerald-600 font-bold">
+                    {orders.length}
+                  </span>{" "}
+                  orders
                 </p>
               </div>
               <Search placeholder="Search Order..." width="300" />
@@ -41,7 +73,7 @@ const Orders = () => {
                     </th>
                     <th className="text-[14px] text-gray-600 font-[600] px-4 py-3 whitespace-nowrap text-left">
                       Phone number
-                    </th>{" "}
+                    </th>
                     <th className="text-[14px] text-gray-600 font-[600] px-4 py-3 whitespace-nowrap text-left">
                       Address
                     </th>
@@ -49,7 +81,7 @@ const Orders = () => {
                       Pincode
                     </th>
                     <th className="text-[14px] text-gray-600 font-[600] px-4 py-3 whitespace-nowrap text-left">
-                      Total Amout
+                      Total Amount
                     </th>
                     <th className="text-[14px] text-gray-600 font-[600] px-4 py-3 whitespace-nowrap text-left">
                       User Id
@@ -63,11 +95,9 @@ const Orders = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <OrderRow />
-                  <OrderRow />
-                  <OrderRow />
-                  <OrderRow />
-                  <OrderRow />
+                  {orders.map((order, index) => (
+                    <OrderRow key={`${order.orderId}-${index}`} order={order} />
+                  ))}
                 </tbody>
               </table>
             </div>

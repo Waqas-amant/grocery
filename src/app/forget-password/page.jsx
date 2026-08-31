@@ -27,13 +27,13 @@ const ForgotPasword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    if (formField.email === "") {
+    if (!formField.email) {
       context?.alertBox("error", "Please enter your email address");
-      setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const res = await postData("/api/user/forgot-password", {
@@ -41,21 +41,19 @@ const ForgotPasword = () => {
       });
 
       if (res?.success) {
-        context?.alertBox("success", res?.message);
-
+        context?.alertBox("success", res?.message || "OTP sent successfully");
         Cookies.set("actionType", "forgot-password");
         Cookies.set("userEmail", formField.email);
-
         router.push("/verify");
       } else {
-        context?.alertBox("error", res?.message);
+        context?.alertBox("error", res?.message || "Unable to send OTP");
       }
     } catch (error) {
       console.log(error);
       context?.alertBox("error", "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
   const validateVaue = Object.values(formField).every((ele) => ele);
   return (
@@ -91,9 +89,9 @@ const ForgotPasword = () => {
             <Button
               type="submit"
               className="w-full btn-g py-4! text-[16px]!"
-              disabled={!validateVaue}
+              disabled={!validateVaue || isLoading}
             >
-              {isLoading === true ? <CircularProgress /> : "Submit"}
+              {isLoading === true ? <CircularProgress size={22} /> : "Submit"}
             </Button>
           </form>
           <div className="text-center mt-4">

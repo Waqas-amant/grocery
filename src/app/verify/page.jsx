@@ -33,16 +33,21 @@ const Verify = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const actionType = Cookies.get("actionType");
     const email = Cookies.get("userEmail");
 
     if (!email) {
       context?.alertBox("error", "Email not found.");
-      setIsLoading(false);
       return;
     }
+
+    if (!otp || otp.length < 6) {
+      context?.alertBox("error", "Please enter the full OTP.");
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       if (actionType === "verifyEmail") {
@@ -52,12 +57,15 @@ const Verify = () => {
         });
 
         if (res?.success) {
-          context?.alertBox("success", res?.message);
+          context?.alertBox(
+            "success",
+            res?.message || "Email verified successfully",
+          );
           Cookies.remove("userEmail");
           Cookies.remove("actionType");
           router.push("/login");
         } else {
-          context?.alertBox("error", res?.message);
+          context?.alertBox("error", res?.message || "OTP verification failed");
         }
       } else if (actionType === "forgot-password") {
         const res = await postData("/api/user/verify-forgot-password-otp", {
@@ -66,10 +74,13 @@ const Verify = () => {
         });
 
         if (res?.success) {
-          context?.alertBox("success", res?.message);
+          context?.alertBox(
+            "success",
+            res?.message || "OTP verified successfully",
+          );
           router.push("/forget-password/change-password");
         } else {
-          context?.alertBox("error", res?.message);
+          context?.alertBox("error", res?.message || "OTP verification failed");
         }
       } else {
         context?.alertBox("error", "Invalid action type");
@@ -77,9 +88,9 @@ const Verify = () => {
     } catch (error) {
       console.log(error);
       context?.alertBox("error", "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const resendOTP = () => {
@@ -137,8 +148,12 @@ const Verify = () => {
               </>
             )}
           </div>
-          <Button type="submit" className="w-full btn-g py-4! text-[16px]!">
-            {isLoading === true ? <CircularProgress /> : "Verify"}
+          <Button
+            type="submit"
+            className="w-full btn-g py-4! text-[16px]!"
+            disabled={isLoading}
+          >
+            {isLoading === true ? <CircularProgress size={22} /> : "Verify"}
           </Button>
 
           <div className="text-center mt-4">

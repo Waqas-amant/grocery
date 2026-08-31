@@ -1,31 +1,31 @@
 "use client";
 import { Button } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { LiaAngleDownSolid } from "react-icons/lia";
 import { TfiAngleUp } from "react-icons/tfi";
 
-const QtyBox = () => {
-  const [qtyVal, setQtyVal] = useState(1);
-
+const QtyBox = ({ quantity = 1, setQuantity }) => {
   const minusQty = () => {
-    if (qtyVal === 1) {
-      setQtyVal(1);
+    if (quantity <= 1) {
+      setQuantity?.(1);
     } else {
-      setQtyVal(qtyVal - 1);
+      setQuantity?.(quantity - 1);
     }
   };
 
   return (
-    <div className="QtyBox border border-[rgba(0,0,0,0.1)] rounded-md flex items-center gap-1 w-[80px] h-[45px]  relative">
+    <div className="QtyBox border border-[rgba(0,0,0,0.1)] rounded-md flex items-center gap-1 w-[80px] h-[45px] relative">
       <input
         type="number"
-        value={qtyVal}
+        min="1"
+        value={quantity}
+        onChange={(e) => setQuantity?.(Number(e.target.value) || 1)}
         className="border-0 outline-none w-full h-full px-2 text-[14px] text-gray-800"
       />
       <div className="flex flex-col absolute top-0 right-0 h-full">
         <Button
           className="w-7.5! min-w-7.5! h-5.5! text-gray-800!"
-          onClick={() => setQtyVal(qtyVal + 1)}
+          onClick={() => setQuantity?.(quantity + 1)}
         >
           <TfiAngleUp size={25} />
         </Button>

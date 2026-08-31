@@ -1,13 +1,11 @@
 "use client";
-import { Button, CircularProgress, Link, TextField } from "@mui/material";
-import React, { useContext } from "react";
-import { useState } from "react";
+import { Button, CircularProgress, TextField } from "@mui/material";
+import React, { useContext, useState } from "react";
 import IconButton from "@mui/material/IconButton";
-
+import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-
-import { MyContext } from "@/components/context/ThemeProvider";
+import { MyContext } from "@/components/context/ThemeContext";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { postData } from "@/utils/api";
@@ -36,92 +34,87 @@ const Register = () => {
   };
 
   const validateVaue = Object.values(formField).every((ele) => ele);
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    if (formField.name === "") {
-      context?.alertBox("error", "Please enter your name");
-      setIsLoading(false);
-      return false;
-    }
-    if (formField.email === "") {
-      context?.alertBox("error", "Please enter your email address");
-      setIsLoading(false);
-      return false;
-    }
-    if (formField.password === "") {
-      context?.alertBox("error", "Please enter your password");
-      setIsLoading(false);
-      return false;
-    }
-    postData("/api/user/register", formField).then((res) => {
-      if (res?.error !== true) {
-        context?.alertBox("success", res?.message);
 
-        // ✅ save email for verify page
-        // localStorage.setItem("userEmail", formField.email);
+    if (!formField.name) {
+      context?.alertBox("error", "Please enter your name");
+      return;
+    }
+    if (!formField.email) {
+      context?.alertBox("error", "Please enter your email address");
+      return;
+    }
+    if (!formField.password) {
+      context?.alertBox("error", "Please enter your password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await postData("/api/user/register", formField);
+      if (res?.success || res?.error !== true) {
+        context?.alertBox(
+          "success",
+          res?.message || "Account created successfully",
+        );
         Cookies.set("userEmail", formField.email);
         Cookies.set("actionType", "verifyEmail");
+        setFormField({ name: "", email: "", password: "" });
         router.push("/verify");
-
-        // reset baad me karo (optional)
-        setFormField({
-          name: "",
-          email: "",
-          password: "",
-        });
       } else {
-        context?.alertBox("error", res?.message);
+        context?.alertBox("error", res?.message || "Registration failed");
       }
-
+    } catch (error) {
+      context?.alertBox("error", "Something went wrong");
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
-   const signInWithGoogle = () => {
-      signInWithPopup(auth, googleProvider)
-        .then(async (result) => {
-          const user = result.user;
-           const fields={
-            name:user?.providerData[0]?.displayName,
-            email:user?.providerData[0]?.email,
-            password:null,
-            avatar:user?.providerData[0]?.photoURL,
-            phone:user?.providerData[0]?.phoneNumber,
-            verify_Email:true,
-            signUpWithGoogle:true,
-            
-           }
-           
-          try {
-            const res = await postData("/api/user/authWithGoogle", fields);
-            if (res?.success) {
-              context?.alertBox("success", "Logged in with Google successfully");
-  
-              Cookies.set("accessToken", res?.data?.accessToken);
-              Cookies.set("refreshToken", res?.data?.refreshToken);
-              Cookies.set("userEmail", res?.data?.existUser?.email);
-              Cookies.set("userName", res?.data?.existUser?.name);
-  
-              context.setUser({
-                email: res?.data?.existUser?.email,
-                name: res?.data?.existUser?.name,
-              });
-              context.setIsLogin(true);
-              router.push("/");
-            } else {
-              context?.alertBox("error", res?.message || "Backend sync failed");
-            }
-          } catch (err) {
-            console.error("Backend sync error:", err);
-            context?.alertBox("error", "Failed to sync with server");
+  const signInWithGoogle = () => {
+    signInWithPopup(auth, googleProvider)
+      .then(async (result) => {
+        const user = result.user;
+        const fields = {
+          name: user?.providerData[0]?.displayName,
+          email: user?.providerData[0]?.email,
+          password: null,
+          avatar: user?.providerData[0]?.photoURL,
+          phone: user?.providerData[0]?.phoneNumber,
+          verify_Email: true,
+          signUpWithGoogle: true,
+        };
+
+        try {
+          const res = await postData("/api/user/authWithGoogle", fields);
+          if (res?.success) {
+            context?.alertBox("success", "Logged in with Google successfully");
+
+            Cookies.set("accessToken", res?.data?.accessToken);
+            Cookies.set("refreshToken", res?.data?.refreshToken);
+            Cookies.set("userEmail", res?.data?.existUser?.email);
+            Cookies.set("userName", res?.data?.existUser?.name);
+
+            context.setUser({
+              email: res?.data?.existUser?.email,
+              name: res?.data?.existUser?.name,
+            });
+            context.setIsLogin(true);
+            router.push("/");
+          } else {
+            context?.alertBox("error", res?.message || "Backend sync failed");
           }
-        })
-        .catch((error) => {
-          console.error("GOOGLE ERROR:", error);
-          context?.alertBox("error", error.message);
-        });
-    };
+        } catch (err) {
+          console.error("Backend sync error:", err);
+          context?.alertBox("error", "Failed to sync with server");
+        }
+      })
+      .catch((error) => {
+        console.error("GOOGLE ERROR:", error);
+        context?.alertBox("error", error.message);
+      });
+  };
   return (
     <section className="bg-gray-100 py-10 rounded-lg border border-gray-400 w-[500px] m-auto relative">
       <div className="container">
@@ -183,9 +176,9 @@ const Register = () => {
             <Button
               type="submit"
               className="w-full btn-g py-4! text-[16px]!"
-              disabled={!validateVaue}
+              disabled={!validateVaue || isLoading}
             >
-              {isLoading === true ? <CircularProgress /> : " Register"}
+              {isLoading === true ? <CircularProgress size={22} /> : "Register"}
             </Button>
           </div>
           <div className="text-center text-[15px] text-gray-600 mb-3">
@@ -203,8 +196,6 @@ const Register = () => {
             or continue with social account
           </div>
           <Button
-            loading={false}
-            loadingPosition="end"
             startIcon={<FcGoogle />}
             variant="outlined"
             size="large"
