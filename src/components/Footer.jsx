@@ -11,7 +11,7 @@ import { IoChatboxOutline } from "react-icons/io5";
 import { LiaGiftSolid, LiaShippingFastSolid } from "react-icons/lia";
 import { PiKeyReturnLight } from "react-icons/pi";
 import Drawer from "@mui/material/Drawer";
-import { MyContext } from "./context/ThemeProvider";
+import { MyContext } from "./context/ThemeContext";
 import TextField from "@mui/material/TextField";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
