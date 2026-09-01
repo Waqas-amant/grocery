@@ -141,6 +141,7 @@ const ThemeProvider = ({ children }) => {
   });
 
   const [cartItems, setCartItems] = useState([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
   // Check login
   useEffect(() => {
@@ -173,7 +174,15 @@ const ThemeProvider = ({ children }) => {
         console.error("Error parsing cart from localStorage:", error);
       }
     }
+
+    setCartLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (cartLoaded) {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+  }, [cartItems, cartLoaded]);
 
   // Add product to cart
   const addToCart = (product, quantity = 1) => {
@@ -194,8 +203,6 @@ const ThemeProvider = ({ children }) => {
         });
       }
 
-      localStorage.setItem("cartItems", JSON.stringify(cart));
-
       return cart;
     });
 
@@ -206,8 +213,6 @@ const ThemeProvider = ({ children }) => {
   const removeFromCart = (id) => {
     setCartItems((prevCart) => {
       const updatedCart = prevCart.filter((item) => item._id !== id);
-
-      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
 
       return updatedCart;
     });
@@ -229,8 +234,6 @@ const ThemeProvider = ({ children }) => {
         return item;
       });
 
-      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
-
       return updatedCart;
     });
   };
@@ -238,7 +241,6 @@ const ThemeProvider = ({ children }) => {
   // Clear cart
   const clearCart = () => {
     setCartItems([]);
-    localStorage.removeItem("cartItems");
   };
 
   // Address panel
