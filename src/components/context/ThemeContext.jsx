@@ -1,93 +1,252 @@
+// "use client";
+
+// import { useState, createContext, useEffect } from "react";
+// import toast, { Toaster } from "react-hot-toast";
+// import Cookies from "js-cookie";
+// import { useRouter } from "next/navigation";
+// // ✅ Context create
+// export const MyContext = createContext();
+
+// const ThemeProvider = ({ children }) => {
+//   const [isOpenAddressBox, setIsOpenAddressBox] = useState(false);
+//   const [isLogin, setIsLogin] = useState(false);
+//   const [user, setUser] = useState({
+//     email: "",
+//     name: "",
+//   });
+//   const [cartItems, setCartItems] = useState([]);
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     const token = Cookies.get("accessToken");
+//     if (token !== undefined && token !== null && token !== "") {
+//       Cookies.remove("userEmail");
+//       Cookies.remove("actionType");
+//       setIsLogin(true);
+//       setUser({
+//         name: Cookies.get("userName") || "",
+//         email: Cookies.get("userEmail") || "",
+//       });
+//       // if (token) {
+//       //   router.push("/");
+//       // }
+//     }
+//   }, [router]);
+
+//   // Load cart from localStorage after mount
+//   useEffect(() => {
+//     const savedCart = localStorage.getItem("cartItems");
+//     if (savedCart) {
+//       try {
+//         setCartItems(JSON.parse(savedCart));
+//       } catch (e) {
+//         console.error("Error parsing cart from localStorage", e);
+//       }
+//     }
+//   }, []);
+
+//   const addToCart = (product, quantity = 1) => {
+//     const cart = [...cartItems];
+//     const existingIndex = cart.findIndex((item) => item._id === product._id);
+
+//     if (existingIndex !== -1) {
+//       cart[existingIndex].quantity = quantity;
+//     } else {
+//       cart.push({ ...product, quantity });
+//     }
+
+//     setCartItems(cart);
+//     localStorage.setItem("cartItems", JSON.stringify(cart));
+//     alertBox("success", "Added to Cart!");
+//   };
+
+//   const removeFromCart = (id) => {
+//     const updatedCart = cartItems.filter((item) => item._id !== id);
+//     setCartItems(updatedCart);
+//     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+//     alertBox("success", "Removed from Cart!");
+//   };
+
+//   const updateCartQty = (id, quantity) => {
+//     const updatedCart = cartItems.map((item) => {
+//       if (item._id === id) {
+//         return { ...item, quantity };
+//       }
+//       return item;
+//     });
+//     setCartItems(updatedCart);
+//     localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+//   };
+
+//   const clearCart = () => {
+//     setCartItems([]);
+//     localStorage.removeItem("cartItems");
+//   };
+
+//   const isOpenAddressPanel = () => {
+//     setIsOpenAddressBox((prev) => !prev);
+//   };
+
+//   // ✅ Alert function
+//   const alertBox = (type, msg) => {
+//     if (type === "success") {
+//       toast.success(msg);
+//     } else {
+//       toast.error(msg);
+//     }
+//   };
+
+//   // ✅ All values in one object
+//   const values = {
+//     isOpenAddressBox,
+//     setIsOpenAddressBox,
+//     isOpenAddressPanel,
+//     alertBox,
+//     setIsLogin,
+//     isLogin,
+//     setUser,
+//     user,
+//     cartItems,
+//     addToCart,
+//     removeFromCart,
+//     updateCartQty,
+//     clearCart,
+//   };
+
+//   return (
+//     <MyContext.Provider value={values}>
+//       {children}
+//       <Toaster position="top-right" reverseOrder={false} />
+//     </MyContext.Provider>
+//   );
+// };
+
+// export default ThemeProvider;
+
 "use client";
 
 import { useState, createContext, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-// ✅ Context create
+
 export const MyContext = createContext();
 
 const ThemeProvider = ({ children }) => {
   const [isOpenAddressBox, setIsOpenAddressBox] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+
   const [user, setUser] = useState({
     email: "",
     name: "",
   });
-  const [cartItems, setCartItems] = useState([]);
-  const router = useRouter();
 
+  const [cartItems, setCartItems] = useState([]);
+
+  // Check login
   useEffect(() => {
     const token = Cookies.get("accessToken");
-    if (token !== undefined && token !== null && token !== "") {
-      Cookies.remove("userEmail");
-      Cookies.remove("actionType");
+
+    if (token) {
       setIsLogin(true);
+
       setUser({
         name: Cookies.get("userName") || "",
         email: Cookies.get("userEmail") || "",
       });
-      // if (token) {
-      //   router.push("/");
-      // }
-    }
-  }, [router]);
 
-  // Load cart from localStorage after mount
+      Cookies.remove("actionType");
+    }
+  }, []);
+
+  // Load cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem("cartItems");
+
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Error parsing cart from localStorage", e);
+        const parsedCart = JSON.parse(savedCart);
+
+        if (Array.isArray(parsedCart)) {
+          setCartItems(parsedCart);
+        }
+      } catch (error) {
+        console.error("Error parsing cart from localStorage:", error);
       }
     }
   }, []);
 
+  // Add product to cart
   const addToCart = (product, quantity = 1) => {
-    const cart = [...cartItems];
-    const existingIndex = cart.findIndex((item) => item._id === product._id);
+    setCartItems((prevCart) => {
+      const cart = [...prevCart];
 
-    if (existingIndex !== -1) {
-      cart[existingIndex].quantity = quantity;
-    } else {
-      cart.push({ ...product, quantity });
-    }
+      const existingIndex = cart.findIndex((item) => item._id === product._id);
 
-    setCartItems(cart);
-    localStorage.setItem("cartItems", JSON.stringify(cart));
+      if (existingIndex !== -1) {
+        cart[existingIndex] = {
+          ...cart[existingIndex],
+          quantity,
+        };
+      } else {
+        cart.push({
+          ...product,
+          quantity,
+        });
+      }
+
+      localStorage.setItem("cartItems", JSON.stringify(cart));
+
+      return cart;
+    });
+
     alertBox("success", "Added to Cart!");
   };
 
+  // Remove product from cart
   const removeFromCart = (id) => {
-    const updatedCart = cartItems.filter((item) => item._id !== id);
-    setCartItems(updatedCart);
-    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+    setCartItems((prevCart) => {
+      const updatedCart = prevCart.filter((item) => item._id !== id);
+
+      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+
+      return updatedCart;
+    });
+
     alertBox("success", "Removed from Cart!");
   };
 
+  // Update quantity
   const updateCartQty = (id, quantity) => {
-    const updatedCart = cartItems.map((item) => {
-      if (item._id === id) {
-        return { ...item, quantity };
-      }
-      return item;
+    setCartItems((prevCart) => {
+      const updatedCart = prevCart.map((item) => {
+        if (item._id === id) {
+          return {
+            ...item,
+            quantity,
+          };
+        }
+
+        return item;
+      });
+
+      localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+
+      return updatedCart;
     });
-    setCartItems(updatedCart);
-    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
   };
 
+  // Clear cart
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem("cartItems");
   };
 
+  // Address panel
   const isOpenAddressPanel = () => {
     setIsOpenAddressBox((prev) => !prev);
   };
 
-  // ✅ Alert function
+  // Toast
   const alertBox = (type, msg) => {
     if (type === "success") {
       toast.success(msg);
@@ -96,17 +255,21 @@ const ThemeProvider = ({ children }) => {
     }
   };
 
-  // ✅ All values in one object
   const values = {
     isOpenAddressBox,
     setIsOpenAddressBox,
     isOpenAddressPanel,
+
     alertBox,
+
     setIsLogin,
     isLogin,
+
     setUser,
     user,
+
     cartItems,
+
     addToCart,
     removeFromCart,
     updateCartQty,
@@ -116,6 +279,7 @@ const ThemeProvider = ({ children }) => {
   return (
     <MyContext.Provider value={values}>
       {children}
+
       <Toaster position="top-right" reverseOrder={false} />
     </MyContext.Provider>
   );
