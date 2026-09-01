@@ -96,20 +96,24 @@ const Login = () => {
   };
 
   const signInWithGoogle = () => {
+    if (!auth) {
+      context?.alertBox("error", "Google sign-in is not configured");
+      return;
+    }
+
     signInWithPopup(auth, googleProvider)
       .then(async (result) => {
         const user = result.user;
-         const fields={
-          name:user?.providerData[0]?.displayName,
-          email:user?.providerData[0]?.email,
-          password:null,
-          avatar:user?.providerData[0]?.photoURL,
-          phone:user?.providerData[0]?.phoneNumber,
-          verify_Email:true,
-          signUpWithGoogle:true,
-          
-         }
-         
+        const fields = {
+          name: user?.providerData[0]?.displayName,
+          email: user?.providerData[0]?.email,
+          password: null,
+          avatar: user?.providerData[0]?.photoURL,
+          phone: user?.providerData[0]?.phoneNumber,
+          verify_Email: true,
+          signUpWithGoogle: true,
+        };
+
         try {
           const res = await postData("/api/user/authWithGoogle", fields);
           if (res?.success) {
@@ -140,8 +144,6 @@ const Login = () => {
       });
   };
 
-  
-  
   const validateVaue = Object.values(formField).every((ele) => ele);
   // const signInWithGoogle = async () => {
   //   try {

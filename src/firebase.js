@@ -15,9 +15,17 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
-const auth = getAuth(app);
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId,
+);
+
+// Keep static generation working when Firebase variables are not configured.
+const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
+const analytics =
+  app && typeof window !== "undefined" ? getAnalytics(app) : null;
+const auth = app ? getAuth(app) : null;
 
 export { app, analytics, auth };
