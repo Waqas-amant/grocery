@@ -39,7 +39,7 @@ const Register = () => {
 
     try {
       const res = await postData("/api/user/register", formField);
-      if (res?.error !== true) {
+      if (res?.success || res?.error === false) {
         setError(false);
         setMessage(
           res?.message || "Registered successfully! Please verify your email.",

@@ -53,7 +53,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const res = await postData("/api/user/register", formField);
-      if (res?.success || res?.error !== true) {
+      if (res?.success) {
         context?.alertBox(
           "success",
           res?.message || "Account created successfully",
@@ -91,14 +91,15 @@ const Register = () => {
           if (res?.success) {
             context?.alertBox("success", "Logged in with Google successfully");
 
+            const userData = res?.data?.user || res?.data?.existUser;
             Cookies.set("accessToken", res?.data?.accessToken);
             Cookies.set("refreshToken", res?.data?.refreshToken);
-            Cookies.set("userEmail", res?.data?.existUser?.email);
-            Cookies.set("userName", res?.data?.existUser?.name);
+            Cookies.set("userEmail", userData?.email);
+            Cookies.set("userName", userData?.name);
 
             context.setUser({
-              email: res?.data?.existUser?.email,
-              name: res?.data?.existUser?.name,
+              email: userData?.email,
+              name: userData?.name,
             });
             context.setIsLogin(true);
             router.push("/");
