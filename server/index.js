@@ -24,6 +24,11 @@ const allowedOrigins = (
   .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Private-Network", "true");
+  next();
+});
+
 app.use(
   cors({
     origin: (origin, callback) => {
