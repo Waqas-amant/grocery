@@ -18,7 +18,7 @@ const app = express();
 
 const allowedOrigins = (
   process.env.CORS_ORIGINS ||
-  "http://localhost:3000,http://localhost:3001,https://grocery-taupe-two.vercel.app"
+  "http://localhost:3000,http://localhost:3001,https://grocery-taupe-two.vercel.app,https://grocery-j8g880zrl-waqas-amants-projects.vercel.app"
 )
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
