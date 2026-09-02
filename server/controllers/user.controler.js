@@ -8,6 +8,11 @@ import generateAccessToken from "../utils/generateAccessToken.js";
 import generateRefreshToken from "../utils/generateRefreshToken.js";
 import { FaBullseye } from "react-icons/fa6";
 import sendEmail from "../config/emailService.js";
+const authCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+};
 
 export async function registerUserController(req, res) {
   try {
@@ -186,17 +191,8 @@ export async function loginUserController(req, res) {
       { expiresIn: "1d" },
     );
 
-    res.cookie("accessToken", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    });
+    res.cookie("accessToken", token, authCookieOptions);
+    res.cookie("refreshToken", refreshToken, authCookieOptions);
 
     return res.json({
       success: true,
@@ -228,14 +224,8 @@ export async function logOutController(req, res) {
       });
     }
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    };
-
-    res.clearCookie("accessToken", cookieOptions);
-    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("accessToken", authCookieOptions);
+    res.clearCookie("refreshToken", authCookieOptions);
 
     await UserModel.findByIdAndUpdate(userId, {
       refreshToken: "",
@@ -506,17 +496,8 @@ export async function authWithGoogle(req, res) {
         last_login_date: new Date(),
       });
 
-      res.cookie("accessToken", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      });
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      });
+      res.cookie("accessToken", token, authCookieOptions);
+      res.cookie("refreshToken", refreshToken, authCookieOptions);
 
       return res.json({
         success: true,
@@ -547,17 +528,8 @@ export async function authWithGoogle(req, res) {
         last_login_date: new Date(),
       });
 
-      res.cookie("accessToken", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      });
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      });
+      res.cookie("accessToken", token, authCookieOptions);
+      res.cookie("refreshToken", refreshToken, authCookieOptions);
 
       return res.json({
         success: true,
@@ -573,7 +545,7 @@ export async function authWithGoogle(req, res) {
       });
     }
   } catch (error) {
-    return response.status(500).json({
+    return res.status(500).json({
       error: true,
       success: false,
       message: error.message,
