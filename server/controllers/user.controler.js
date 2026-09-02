@@ -439,7 +439,7 @@ export async function resendOtpController(req, res) {
       email,
       "Verify Email from BroBazar",
       "",
-      VerificationEmail(name, verifyCode),
+      VerificationEmail(user.name, verifyCode),
     );
 
     await user.save();

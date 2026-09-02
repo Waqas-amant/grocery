@@ -97,13 +97,13 @@ const Verify = () => {
     postData("/api/user/resend-otp", {
       email: Cookies.get("userEmail"),
     }).then((res) => {
-      if (res?.error === false) {
-        context.alertBox("success", res?.message);
+      if (res?.success || res?.error === false) {
+        context.alertBox("success", res?.message || "OTP sent successfully");
         setTimeLift(120);
         setExpired(false);
         setOtp("");
       } else {
-        context.alertBox("error", res?.message);
+        context.alertBox("error", res?.message || "Failed to send OTP");
       }
     });
   };
