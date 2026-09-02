@@ -121,12 +121,12 @@ const Login = () => {
 
             Cookies.set("accessToken", res?.data?.accessToken);
             Cookies.set("refreshToken", res?.data?.refreshToken);
-            Cookies.set("userEmail", res?.data?.existUser?.email);
-            Cookies.set("userName", res?.data?.existUser?.name);
+            Cookies.set("userEmail", res?.data?.user?.email);
+            Cookies.set("userName", res?.data?.user?.name);
 
             context.setUser({
-              email: res?.data?.existUser?.email,
-              name: res?.data?.existUser?.name,
+              email: res?.data?.user?.email,
+              name: res?.data?.user?.name,
             });
             context.setIsLogin(true);
             router.push("/");
@@ -160,7 +160,6 @@ const Login = () => {
   //   } catch (error) {
   //     console.log(error);
   //   }
-  // };
   return (
     <section className="bg-white p-10 rounded-lg border border-gray-400 w-[500px] m-auto relative overflow-hidden">
       {/* ✅ Content (z-50 so clickable) */}

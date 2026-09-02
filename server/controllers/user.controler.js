@@ -586,22 +586,22 @@ export async function getAllUsers(request, response) {
     const page = parseInt(request.query.page) || 1;
     const limit = parseInt(request.query.limit) || 10;
     const search = request.query.search || "";
-    
+
     const filter = {};
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } }
+        { email: { $regex: search, $options: "i" } },
       ];
     }
-    
+
     const totalUsers = await UserModel.countDocuments(filter);
     const users = await UserModel.find(filter)
       .select("-password -accessToken -refreshToken -otp -otpExpires")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
-      
+
     return response.status(200).json({
       error: false,
       success: true,
