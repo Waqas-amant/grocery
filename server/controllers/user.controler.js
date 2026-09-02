@@ -55,7 +55,7 @@ export async function registerUserController(req, res) {
       email,
       "Verify Email from BroBazar",
       "",
-      VerificationEmail(name, verifyCode),
+      VerificationEmail(user.name, verifyCode),
     );
 
     const token = jwt.sign(

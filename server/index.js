@@ -16,9 +16,24 @@ import cartRouter from "./routes/cart.route.js";
 import bannerRouter from "./routes/banner.route.js";
 const app = express();
 
+const allowedOrigins = (
+  process.env.CORS_ORIGINS ||
+  "http://localhost:3000,http://localhost:3001,https://grocery-taupe-two.vercel.app"
+)
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Origin is not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
