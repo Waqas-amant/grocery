@@ -5,11 +5,17 @@ const appUrl = process.env.NEXT_PUBLIC_APP_API_URL || "http://localhost:8000";
 // console.log("ENV:", process.env.NEXT_PUBLIC_APP_API_URL);
 export const postData = async (url, formData) => {
   try {
+    const token = Cookies.get("accessToken");
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const response = await fetch(appUrl + url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers,
       credentials: "include", // ✅ important for cookies
       body: JSON.stringify(formData),
     });

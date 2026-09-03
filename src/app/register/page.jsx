@@ -58,8 +58,8 @@ const Register = () => {
           "success",
           res?.message || "Account created successfully",
         );
-        Cookies.set("userEmail", formField.email);
-        Cookies.set("actionType", "verifyEmail");
+        Cookies.set("userEmail", formField.email, { path: "/" });
+        Cookies.set("actionType", "verifyEmail", { path: "/" });
         setFormField({ name: "", email: "", password: "" });
         router.push("/verify");
       } else {

@@ -1,14 +1,12 @@
 "use client";
 import UploadBox from "@/app/components/UploadImage";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-
 import { useRouter } from "next/navigation";
 import { MyContext } from "@/app/components/context/ThemeProvider";
-import { deleteImage, fetchDatafromApi, postData } from "@/app/utils/api";
-import { Button } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import { getFlightDataPartsFromPath } from "next/dist/client/flight-data-helpers";
+import { deleteImage, postData } from "@/app/utils/api";
+import { Button, CircularProgress } from "@mui/material";
+
 const AddSlide = () => {
   const [formFields, setFormFields] = useState({
     images: [],
@@ -20,60 +18,56 @@ const AddSlide = () => {
   const router = useRouter();
 
   const setPreviewFun = (previewArr = []) => {
-    console.log("Received:", previewArr);
-
-    const imgArr = [...preview];
-
-    for (let i = 0; i < previewArr.length; i++) {
-      imgArr.push(previewArr[i]);
-    }
-
+    const imgArr = [...preview, ...previewArr];
     setPreview(imgArr);
-
-    setTimeout(() => {
-      formFields.images = imgArr;
-    }, 10);
+    setFormFields((prev) => ({
+      ...prev,
+      images: imgArr,
+    }));
   };
-  const removeImg = (img, index) => {
-    var imageArr = [];
-    imageArr = preview;
-    deleteImage(`/api/homeSlider/deleteImage?img=${img}`).then((res) => {
-      imageArr.splice(index, 1);
-      setPreview([]);
 
-      setTimeout(() => {
-        setPreview(imageArr);
-        formFields.images = imageArr;
-      }, 10);
+  const removeImg = (img, index) => {
+    deleteImage(`/api/homeSlider/deleteImage?img=${img}`).then(() => {
+      const imageArr = [...preview];
+      imageArr.splice(index, 1);
+      setPreview(imageArr);
+      setFormFields((prev) => ({
+        ...prev,
+        images: imageArr,
+      }));
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("SUBMIT CLICKED");
-    console.log("formFields =", formFields);
+    if (!formFields.images?.length && !preview?.length) {
+      context?.alertBox("error", "Please upload at least one image for the slide");
+      return;
+    }
 
     setIsLoading(true);
 
-    postData("/api/homeSlider/add", formFields).then((res) => {
-      console.log("ADD RESPONSE =", res);
+    const payload = {
+      images: formFields.images.length > 0 ? formFields.images : preview,
+    };
 
-      setTimeout(() => {
+    postData("/api/homeSlider/add", payload)
+      .then((res) => {
         setIsLoading(false);
-        router.push("/home-slides");
-      }, 2000);
-    });
+        if (res?.success || res?.error === false) {
+          context?.alertBox("success", res?.message || "Slide created successfully!");
+          router.push("/home-slides");
+        } else {
+          context?.alertBox("error", res?.message || "Failed to create slide");
+        }
+      })
+      .catch(() => {
+        setIsLoading(false);
+        context?.alertBox("error", "Something went wrong");
+      });
   };
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   postData("/api/homeSlider/add", formFields).then((res) => {
-  //     setTimeout(() => {
-  //       setIsLoading(false);
-  //       router.push("/home-slides");
-  //     }, 2000);
-  //   });
-  // };
+
   return (
     <section className="w-full py-3 px-5">
       <h2 className="text-[18px] text-gray-700 font-[600]">Add Slide</h2>
@@ -93,7 +87,7 @@ const AddSlide = () => {
                 >
                   <img
                     src={img}
-                    alt="product image"
+                    alt="slide image"
                     className="w-full h-full object-cover"
                   />
 
@@ -117,11 +111,11 @@ const AddSlide = () => {
         <div className="flex mt-3">
           <Button
             type="submit"
-            disabled={preview?.length > 0 ? false : true}
-            className="btn-g w-[150px]!"
+            disabled={isLoading || preview?.length === 0}
+            className="btn-g w-[160px]!"
             size="small"
           >
-            {isLoading === true ? <CircularProgress /> : "PUBLISH & VIEW"}
+            {isLoading ? <CircularProgress size={24} color="inherit" /> : "PUBLISH & VIEW"}
           </Button>
         </div>
       </form>

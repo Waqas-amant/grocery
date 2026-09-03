@@ -4,24 +4,12 @@ import { usePathname } from "next/navigation";
 import SideBar from "./components/SideBar";
 import Header from "./components/Header";
 
-const validRoutes = [
-  "/",
-  "/home-slides",
-  "/home-slides/add-home-slide",
-  "/categroy-list",
-  "/categroy-list/add-categroy",
-  "/products-list",
-  "/products-list/add-product",
-  "/users",
-  "/orders",
-  "/banners",
-  "/banners/add-banner",
-];
+const authRoutes = ["/login", "/register", "/verify"];
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
 
-  const hideLayout = !validRoutes.includes(pathname);
+  const hideLayout = authRoutes.includes(pathname);
 
   return hideLayout ? (
     <>{children}</>

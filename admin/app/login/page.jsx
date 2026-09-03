@@ -1,14 +1,16 @@
 "use client";
 import { Button, Checkbox, CircularProgress } from "@mui/material";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { postData } from "../utils/api";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { MyContext } from "../components/context/ThemeProvider";
 
 const Login = () => {
   const router = useRouter();
+  const context = useContext(MyContext);
   const [isLoading, setIsLoading] = useState(false);
   const [formField, setFormField] = useState({
     email: "",
@@ -42,12 +44,26 @@ const Login = () => {
       if (res?.success) {
         setError(false);
         setMessage(res?.message || "Login successful!");
-        Cookies.set("accessToken", res?.data?.accessToken, { expires: 1 });
-        Cookies.set("refreshToken", res?.data?.refreshToken, { expires: 7 });
+        Cookies.set("accessToken", res?.data?.accessToken, { path: "/", expires: 1 });
+        Cookies.set("refreshToken", res?.data?.refreshToken, { path: "/", expires: 7 });
+        if (res?.data?.user?.name) {
+          Cookies.set("userName", res?.data?.user?.name, { path: "/", expires: 7 });
+        }
+        if (res?.data?.user?.email) {
+          Cookies.set("userEmail", res?.data?.user?.email, { path: "/", expires: 7 });
+        }
+
+        if (context?.setIsLogin) {
+          context.setIsLogin(true);
+        }
+        if (context?.setUser) {
+          context.setUser({
+            name: res?.data?.user?.name || "",
+            email: res?.data?.user?.email || "",
+          });
+        }
         
-        setTimeout(() => {
-          router.push("/");
-        }, 1500);
+        router.push("/");
       } else {
         setError(true);
         setMessage(res?.message || "Login failed");

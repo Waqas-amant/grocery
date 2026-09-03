@@ -3,7 +3,7 @@
 import { useState, createContext, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 // ✅ Context create
 import { MyContext } from "./ThemeProvider";
 
@@ -15,21 +15,32 @@ const ThemeProvider = ({ children }) => {
     name: "",
   });
   const router = useRouter();
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (!pathname) return;
     const token = Cookies.get("accessToken");
-    if (token !== undefined && token !== null && token !== "") {
-      Cookies.remove("userEmail");
-      Cookies.remove("actionType");
+    const isAuthPage = ["/login", "/register", "/verify"].includes(pathname);
+    if (token) {
       setIsLogin(true);
       setUser({
         name: Cookies.get("userName") || "",
         email: Cookies.get("userEmail") || "",
       });
-      if (token) {
+      if (isAuthPage) {
         router.push("/");
       }
+    } else {
+      setIsLogin(false);
+      setUser({
+        email: "",
+        name: "",
+      });
+      if (!isAuthPage) {
+        router.push("/login");
+      }
     }
-  }, [isLogin, user]);
+  }, [pathname, router]);
 
   const isOpenAddressPanel = () => {
     setIsOpenAddressBox((prev) => !prev);

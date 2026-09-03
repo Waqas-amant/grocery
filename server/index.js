@@ -14,6 +14,7 @@ import productRouter from "./routes/product.route.js";
 import orderRouter from "./routes/order.route.js";
 import cartRouter from "./routes/cart.route.js";
 import bannerRouter from "./routes/banner.route.js";
+import dashboardRouter from "./routes/dashboard.route.js";
 const app = express();
 
 const allowedOrigins = (
@@ -77,6 +78,7 @@ app.get("/api/test-route", (req, res) => {
 app.use("/api/order", orderRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/banner", bannerRouter);
+app.use("/api/admin/dashboard", dashboardRouter);
 connectDb().then(() => {
   app.listen(PORT, () => {
     console.log(`Server started on ${PORT}`);

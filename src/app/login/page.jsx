@@ -64,11 +64,11 @@ const Login = () => {
       if (res?.success) {
         context?.alertBox("success", res?.message);
 
-        Cookies.set("accessToken", res?.data?.accessToken);
-        Cookies.set("refreshToken", res?.data?.refreshToken);
+        Cookies.set("accessToken", res?.data?.accessToken, { path: "/", expires: 1 });
+        Cookies.set("refreshToken", res?.data?.refreshToken, { path: "/", expires: 7 });
 
-        Cookies.set("userEmail", res?.data?.user?.email);
-        Cookies.set("userName", res?.data?.user?.name);
+        Cookies.set("userEmail", res?.data?.user?.email, { path: "/", expires: 7 });
+        Cookies.set("userName", res?.data?.user?.name, { path: "/", expires: 7 });
 
         context.setUser({
           email: res?.data?.user?.email,

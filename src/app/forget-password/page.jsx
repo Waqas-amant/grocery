@@ -42,8 +42,8 @@ const ForgotPasword = () => {
 
       if (res?.success) {
         context?.alertBox("success", res?.message || "OTP sent successfully");
-        Cookies.set("actionType", "forgot-password");
-        Cookies.set("userEmail", formField.email);
+        Cookies.set("actionType", "forgot-password", { path: "/" });
+        Cookies.set("userEmail", formField.email, { path: "/" });
         router.push("/verify");
       } else {
         context?.alertBox("error", res?.message || "Unable to send OTP");

@@ -2,7 +2,10 @@
 import { Button } from "@mui/material";
 import { Collapse } from "react-collapse";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { MyContext } from "./context/ThemeProvider";
 import { IoIosLogOut } from "react-icons/io";
 import { IoBagCheckOutline } from "react-icons/io5";
 import { LiaAngleDownSolid, LiaImageSolid } from "react-icons/lia";
@@ -13,6 +16,29 @@ import { TbBrandProducthunt, TbUser } from "react-icons/tb";
 
 const SideBar = () => {
   const [isOpenTab, setIsOpenTab] = useState(null);
+  const router = useRouter();
+  const context = useContext(MyContext);
+
+  const handleLogout = () => {
+    Cookies.remove("accessToken", { path: "/" });
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken", { path: "/" });
+    Cookies.remove("refreshToken");
+    Cookies.remove("userName", { path: "/" });
+    Cookies.remove("userName");
+    Cookies.remove("userEmail", { path: "/" });
+    Cookies.remove("userEmail");
+    if (context?.setIsLogin) {
+      context.setIsLogin(false);
+    }
+    if (context?.setUser) {
+      context.setUser({ name: "", email: "" });
+    }
+    if (context?.alertBox) {
+      context.alertBox("success", "Logged out successfully!");
+    }
+    router.push("/login");
+  };
   const sidebarTab = [
     {
       name: "Dashboard",
@@ -140,9 +166,13 @@ const SideBar = () => {
                   <Button
                     className="w-full! text-left! justify-start! capitalize! text-gray-800! text-[16px]! hover:bg-gray-200! px-4! py-[8px]! gap-3! group"
                     key={index}
-                    onClick={() =>
-                      setIsOpenTab(isOpenTab === index ? null : index)
-                    }
+                    onClick={() => {
+                      if (item?.name === "Logout") {
+                        handleLogout();
+                      } else {
+                        setIsOpenTab(isOpenTab === index ? null : index);
+                      }
+                    }}
                   >
                     {item?.icon}
                     {item?.name}

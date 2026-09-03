@@ -9,7 +9,7 @@ import generateRefreshToken from "../utils/generateRefreshToken.js";
 import { FaBullseye } from "react-icons/fa6";
 import sendEmail from "../config/emailService.js";
 const authCookieOptions = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };

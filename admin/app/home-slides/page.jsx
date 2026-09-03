@@ -1,48 +1,72 @@
 "use client";
-import { Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Button, CircularProgress } from "@mui/material";
+import React, { useEffect, useState, useContext } from "react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-
 import TableRow from "@mui/material/TableRow";
 
 import Image from "next/image";
-
 import { RiEdit2Line } from "react-icons/ri";
-import { IoEyeOutline } from "react-icons/io5";
 import { FaRegTrashAlt } from "react-icons/fa";
 import Link from "next/link";
 import { deleteData, fetchDatafromApi } from "../utils/api";
-const columns = [
-  { id: "IMAGE", label: "IMAGE", minWidth: 40 },
+import { MyContext } from "../components/context/ThemeProvider";
 
-  { id: "ACTIONS", label: "ACTIONS", minWidth: 200 },
+const columns = [
+  { id: "IMAGE", label: "SLIDE IMAGE", minWidth: 200 },
+  { id: "ACTIONS", label: "ACTIONS", minWidth: 100 },
 ];
+
 const HomeSlides = () => {
   const [slidesData, setSlideData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+  const context = useContext(MyContext);
+
   useEffect(() => {
     getData();
   }, []);
+
   const getData = () => {
-    fetchDatafromApi("/api/homeSlider").then((res) => {
-      console.log(res);
-      setSlideData(res?.slide);
-    });
+    setIsLoading(true);
+    setErrorMsg("");
+    fetchDatafromApi("/api/homeSlider")
+      .then((res) => {
+        setIsLoading(false);
+        if (res?.success || Array.isArray(res?.slide)) {
+          setSlideData(res?.slide || []);
+        } else {
+          setErrorMsg(res?.message || "Failed to fetch home slides");
+        }
+      })
+      .catch(() => {
+        setIsLoading(false);
+        setErrorMsg("Failed to fetch home slides");
+      });
   };
 
-  const deleteSlide = (id) => {
+  const deleteSlideItem = (id) => {
+    if (!window.confirm("Are you sure you want to delete this slide?")) {
+      return;
+    }
     deleteData(`/api/homeSlider/${id}`).then((res) => {
-      if (res?.error === false) {
+      if (res?.error === false || res?.success) {
+        if (context?.alertBox) {
+          context.alertBox("success", "Slide deleted successfully!");
+        }
         getData();
+      } else {
+        if (context?.alertBox) {
+          context.alertBox("error", res?.message || "Failed to delete slide");
+        }
       }
     });
   };
 
-  const label = { slotProps: { input: { "aria-label": "Checkbox demo" } } };
   return (
     <div className="w-full py-3 px-5">
       <div className="flex items-center justify-between">
@@ -65,76 +89,73 @@ const HomeSlides = () => {
           </Button>
         </Link>
       </div>
-      <div className="w-full p-4 rounded-md shadow-md bg-white mt-3">
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                  >
-                    {column.label}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {slidesData?.length !== 0 &&
-                slidesData?.map((slide, index) => {
-                  return (
-                    <TableRow key={index}>
-                      <TableCell className="px-0!">
-                        <div className="flex items-center gap-3">
-                          <div className="img  rounded-md bg-white">
-                            <Image
-                              src={slide?.images[0]}
-                              alt="product image"
-                              width={300}
-                              height={90}
-                              className="object-cover hover:scale-105 transition-all"
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
 
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Link
-                            href={`/home-slides/edit-slide?slide=${slide?._id}`}
-                          >
-                            <Button className="w-[40px]! h-[40px]! min-w-[40px]! rounded-full! text-gray-900!">
-                              <RiEdit2Line size={20} className="" />
-                            </Button>
-                          </Link>
-                          <Button className="w-[40px]! h-[40px]! min-w-[40px]! rounded-full! text-gray-900!">
-                            <IoEyeOutline size={20} className="" />
-                          </Button>
-                          <Button
-                            className="w-[40px]! h-[40px]! min-w-[40px]! rounded-full! text-gray-900!"
-                            onClick={() => deleteSlide(slide?._id)}
-                          >
-                            <FaRegTrashAlt size={16} className="" />
-                          </Button>
+      <div className="w-full p-4 rounded-md shadow-md bg-white mt-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center p-10">
+            <CircularProgress color="inherit" />
+          </div>
+        ) : errorMsg ? (
+          <div className="text-center p-8 text-red-500 font-medium">
+            {errorMsg}
+          </div>
+        ) : slidesData?.length === 0 ? (
+          <div className="text-center p-8 text-gray-500 font-medium">
+            No home slides found. Click "Add Home Slide" to create one.
+          </div>
+        ) : (
+          <TableContainer sx={{ maxHeight: 440 }}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {slidesData.map((slide) => (
+                  <TableRow key={slide._id}>
+                    <TableCell className="px-0!">
+                      <div className="flex items-center gap-3">
+                        <div className="img rounded-md bg-white relative w-[250px] h-[90px] overflow-hidden">
+                          <Image
+                            src={slide?.images?.[0] || "/banner01.jpg"}
+                            alt="Slide image"
+                            fill
+                            unoptimized
+                            className="object-cover hover:scale-105 transition-all"
+                          />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        /> */}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Link href={`/home-slides/${slide?._id}`}>
+                          <Button className="w-[40px]! h-[40px]! min-w-[40px]! rounded-full! text-gray-900!">
+                            <RiEdit2Line size={20} />
+                          </Button>
+                        </Link>
+                        <Button
+                          className="w-[40px]! h-[40px]! min-w-[40px]! rounded-full! text-red-600!"
+                          onClick={() => deleteSlideItem(slide?._id)}
+                        >
+                          <FaRegTrashAlt size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </div>
     </div>
   );

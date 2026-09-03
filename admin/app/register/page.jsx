@@ -6,6 +6,8 @@ import { FcGoogle } from "react-icons/fc";
 import { postData } from "../utils/api";
 import { useRouter } from "next/navigation";
 
+import Cookies from "js-cookie";
+
 const Register = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,16 +40,19 @@ const Register = () => {
     }
 
     try {
+      const registeredEmail = formField.email;
       const res = await postData("/api/user/register", formField);
       if (res?.success || res?.error === false) {
         setError(false);
         setMessage(
           res?.message || "Registered successfully! Please verify your email.",
         );
+        Cookies.set("userEmail", registeredEmail, { path: "/" });
+        Cookies.set("actionType", "verifyEmail", { path: "/" });
         setFormField({ name: "", email: "", password: "" });
         setTimeout(() => {
-          router.push("/login");
-        }, 2000);
+          router.push("/verify");
+        }, 1500);
       } else {
         setError(true);
         setMessage(res?.message || "Registration failed");

@@ -25,69 +25,69 @@ const EditSlide = () => {
   const context = useContext(MyContext);
   const router = useRouter();
   const params = useParams();
-  const slide = params.get("slide");
+  const id = params?.id;
   useEffect(() => {
-    fetchDatafromApi(`/api/homeSlider/${slide}`).then((res) => {
-      setPreview(res?.slide?.images);
-      //console.log("API Response:", res);
+    if (!id) return;
+    fetchDatafromApi(`/api/homeSlider/${id}`).then((res) => {
+      setPreview(res?.slide?.images || []);
+      setFormFields({
+        images: res?.slide?.images || [],
+      });
     });
-  }, []);
+  }, [id]);
 
   const setPreviewFun = (previewArr = []) => {
-    console.log("Received:", previewArr);
-
-    const imgArr = [...preview];
-
-    for (let i = 0; i < previewArr.length; i++) {
-      imgArr.push(previewArr[i]);
-    }
-
+    const imgArr = [...preview, ...previewArr];
     setPreview(imgArr);
-
-    setTimeout(() => {
-      formFields.images = imgArr;
-    }, 10);
+    setFormFields((prev) => ({
+      ...prev,
+      images: imgArr,
+    }));
   };
-  const removeImg = (img, index) => {
-    var imageArr = [];
-    imageArr = preview;
-    deleteImage(`/api/homeSlider/deleteImage?img=${img}`).then((res) => {
-      imageArr.splice(index, 1);
-      setPreview([]);
 
-      setTimeout(() => {
-        setPreview(imageArr);
-        formFields.images = imageArr;
-      }, 10);
+  const removeImg = (img, index) => {
+    deleteImage(`/api/homeSlider/deleteImage?img=${img}`).then((res) => {
+      const imageArr = [...preview];
+      imageArr.splice(index, 1);
+      setPreview(imageArr);
+      setFormFields((prev) => ({
+        ...prev,
+        images: imageArr,
+      }));
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("SUBMIT CLICKED");
-    console.log("formFields =", formFields);
+    const imagesToSubmit = formFields.images?.length > 0 ? formFields.images : preview;
+    if (!imagesToSubmit || imagesToSubmit.length === 0) {
+      context?.alertBox("error", "Please upload at least one image for the slide");
+      return;
+    }
 
     setIsLoading(true);
 
-    editData(`/api/homeSlider/${slide}`, formFields).then((res) => {
-      console.log("ADD RESPONSE =", res);
+    const payload = {
+      images: imagesToSubmit,
+    };
 
-      setTimeout(() => {
+    editData(`/api/homeSlider/${id}`, payload)
+      .then((res) => {
         setIsLoading(false);
-        router.push("/home-slides");
-      }, 2000);
-    });
+        if (res?.success || res?.error === false) {
+          context?.alertBox("success", res?.message || "Slide updated successfully!");
+          router.push("/home-slides");
+        } else {
+          context?.alertBox("error", res?.message || "Failed to update slide");
+        }
+      })
+      .catch(() => {
+        setIsLoading(false);
+        context?.alertBox("error", "Something went wrong");
+      });
   };
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   postData("/api/homeSlider/add", formFields).then((res) => {
-  //     setTimeout(() => {
-  //       setIsLoading(false);
-  //       router.push("/home-slides");
-  //     }, 2000);
-  //   });
-  // };
+
   return (
     <section className="w-full py-3 px-5">
       <h2 className="text-[18px] text-gray-700 font-[600]">Edit Slide</h2>
@@ -105,15 +105,14 @@ const EditSlide = () => {
                   key={index}
                   className="w-[150px] h-[120px] rounded-md border border-[rgba(0,0,0,0.3)] flex items-center justify-center flex-col gap-2 relative overflow-hidden"
                 >
-                  {preview?.map((img, index) => (
-                    <Image
-                      key={index}
-                      src={img}
-                      alt="product image"
-                      width={300}
-                      height={90}
-                    />
-                  ))}
+                  <Image
+                    src={img}
+                    alt="slide image"
+                    width={300}
+                    height={90}
+                    unoptimized
+                    className="w-full h-full object-cover"
+                  />
 
                   <span
                     className="flex items-center justify-center bg-red-700 rounded-full w-6 h-6 absolute -top-[8px] -right-[8px] cursor-pointer"
@@ -139,7 +138,7 @@ const EditSlide = () => {
             className="btn-g w-[150px]!"
             size="small"
           >
-            {isLoading === false ? <CircularProgress /> : "PUBLISH & VIEW"}
+            {isLoading ? <CircularProgress size={24} color="inherit" /> : "PUBLISH & VIEW"}
           </Button>
         </div>
       </form>
